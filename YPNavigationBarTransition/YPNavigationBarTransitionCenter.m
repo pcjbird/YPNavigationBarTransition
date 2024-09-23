@@ -198,9 +198,8 @@ static struct {
          if ([context isCancelled]) {
              if(currentConfigure.hidden) {
                  [self removeFakeBars];
+                 [navigationBar yp_applyBarConfiguration:currentConfigure];
              }
-             [navigationBar yp_applyBarConfiguration:currentConfigure];
-             
              if (currentConfigure.hidden != navigationController.navigationBarHidden) {
                  [navigationController setNavigationBarHidden:showConfigure.hidden animated:animated];
              }
