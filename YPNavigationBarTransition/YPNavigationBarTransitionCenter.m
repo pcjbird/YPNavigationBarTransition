@@ -196,7 +196,9 @@ static struct {
          }
      } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
          if ([context isCancelled]) {
-             [self removeFakeBars];
+             if(currentConfigure.hidden) {
+                 [self removeFakeBars];
+             }
              [navigationBar yp_applyBarConfiguration:currentConfigure];
              
              if (currentConfigure.hidden != navigationController.navigationBarHidden) {
@@ -205,7 +207,7 @@ static struct {
          }
          
          UIViewController *const toVC  = [context viewControllerForKey:UITransitionContextToViewControllerKey];
-         if (showFakeBar && ctx.toVC == toVC) {
+         if (showFakeBar && ctx.toVC == toVC && ![context isCancelled]) {
              [toVC.view removeObserver:self
                             forKeyPath:NSStringFromSelector(@selector(bounds))
                                context:&ctx];
