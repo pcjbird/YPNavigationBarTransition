@@ -28,6 +28,8 @@
 #import "YPNavigationBarTransitionCenterInternal.h"
 
 BOOL YPTransitionNeedShowFakeBar(YPBarConfiguration *from,YPBarConfiguration *to) {
+    if (!from || !to) return NO;
+    
     BOOL showFakeBar = NO;
     do {
         if (from.hidden || to.hidden) break;
@@ -49,7 +51,7 @@ BOOL YPTransitionNeedShowFakeBar(YPBarConfiguration *from,YPBarConfiguration *to
             }
             
             showFakeBar = ![from.backgroundImage isEqual:to.backgroundImage];
-        } else if (![from.backgroundColor isEqual:to.backgroundColor]) {
+        } else if (from.backgroundColor && to.backgroundColor && ![from.backgroundColor isEqual:to.backgroundColor]) {
             showFakeBar = YES;
         }
     } while (0);
@@ -98,8 +100,12 @@ static struct {
 }
 
 - (void) removeFakeBars {
-    [_fromViewControllerFakeBar removeFromSuperview];
-    [_toViewControllerFakeBar removeFromSuperview];
+    if (_fromViewControllerFakeBar.superview) {
+        [_fromViewControllerFakeBar removeFromSuperview];
+    }
+    if (_toViewControllerFakeBar.superview) {
+        [_toViewControllerFakeBar removeFromSuperview];
+    }
 }
 
 #pragma mark - transition
@@ -107,6 +113,7 @@ static struct {
 - (void) navigationController:(UINavigationController *)navigationController
        willShowViewController:(UIViewController *)viewController
                      animated:(BOOL)animated {
+    if (!navigationController || !viewController) return;
     
     YPBarConfiguration *currentConfigure = [navigationController.navigationBar currentBarConfigure] ?: self.defaultBarConfigure;
     YPBarConfiguration *showConfigure = self.defaultBarConfigure;
@@ -116,6 +123,7 @@ static struct {
     }
     
     UINavigationBar *const navigationBar = navigationController.navigationBar;
+    if (!navigationBar) return;
     
     BOOL showFakeBar = YPTransitionNeedShowFakeBar(currentConfigure, showConfigure);
     
@@ -149,6 +157,7 @@ static struct {
         return;
     }
     
+    __weak typeof(self) weakSelf = self;
     [navigationController.transitionCoordinator
      animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
          if (showFakeBar) {
@@ -160,7 +169,7 @@ static struct {
              if (fromVC && [currentConfigure isVisible]) {
                  CGRect fakeBarFrame = [fromVC yp_fakeBarFrameForNavigationBar:navigationBar];
                  if (!CGRectIsNull(fakeBarFrame)) {
-                     UIToolbar *fakeBar = self.fromViewControllerFakeBar;
+                     UIToolbar *fakeBar = weakSelf.fromViewControllerFakeBar;
                      [fakeBar yp_applyBarConfiguration:currentConfigure];
                      fakeBar.frame = fakeBarFrame;
                      [fromVC.view addSubview:fakeBar];
@@ -175,7 +184,7 @@ static struct {
                          fakeBarFrame.origin.y = toVC.view.bounds.origin.y;
                      }
                      
-                     UIToolbar *fakeBar = self.toViewControllerFakeBar;
+                     UIToolbar *fakeBar = weakSelf.toViewControllerFakeBar;
                      [fakeBar yp_applyBarConfiguration:showConfigure];
                      fakeBar.frame = fakeBarFrame;
                      [toVC.view addSubview:fakeBar];
@@ -183,11 +192,11 @@ static struct {
              }
              
              ctx.toVC = toVC;
-             [toVC.view addObserver:self
+             [toVC.view addObserver:weakSelf
                          forKeyPath:NSStringFromSelector(@selector(bounds))
                             options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                             context:&ctx];
-             [toVC.view addObserver:self
+             [toVC.view addObserver:weakSelf
                          forKeyPath:NSStringFromSelector(@selector(frame))
                             options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                             context:&ctx];
@@ -197,7 +206,7 @@ static struct {
      } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
          if ([context isCancelled]) {
              if(currentConfigure.hidden) {
-                 [self removeFakeBars];
+                 [weakSelf removeFakeBars];
                  [navigationBar yp_applyBarConfiguration:currentConfigure];
              }
              if (currentConfigure.hidden != navigationController.navigationBarHidden) {
@@ -207,15 +216,19 @@ static struct {
          
          UIViewController *const toVC  = [context viewControllerForKey:UITransitionContextToViewControllerKey];
          if (showFakeBar && ctx.toVC == toVC && ![context isCancelled]) {
-             [toVC.view removeObserver:self
-                            forKeyPath:NSStringFromSelector(@selector(bounds))
-                               context:&ctx];
-             [toVC.view removeObserver:self
-                            forKeyPath:NSStringFromSelector(@selector(frame))
-                               context:&ctx];
+             @try {
+                 [toVC.view removeObserver:weakSelf
+                               forKeyPath:NSStringFromSelector(@selector(bounds))
+                                  context:&ctx];
+                 [toVC.view removeObserver:weakSelf
+                               forKeyPath:NSStringFromSelector(@selector(frame))
+                                  context:&ctx];
+             } @catch (NSException *exception) {
+                 // Handle potential exception when removing observer
+             }
          }
          
-         if (self) self.isTransitionNavigationBar = NO;
+         if (weakSelf) weakSelf.isTransitionNavigationBar = NO;
      }];
     
     void (^popInteractionEndBlock)(id<UIViewControllerTransitionCoordinatorContext>) =
@@ -242,6 +255,8 @@ static struct {
                      animated:(BOOL)animated {
     [self removeFakeBars];
     
+    if (!navigationController || !viewController) return;
+    
     YPBarConfiguration *showConfigure = self.defaultBarConfigure;
     if ([viewController yp_hasCustomNavigationBarStyle]) {
         id<YPNavigationBarConfigureStyle> owner = (id<YPNavigationBarConfigureStyle>)viewController;
@@ -249,6 +264,8 @@ static struct {
     }
     
     UINavigationBar *const navigationBar = navigationController.navigationBar;
+    if (!navigationBar) return;
+    
     [navigationBar yp_applyBarConfiguration:showConfigure];
     
     _isTransitionNavigationBar = NO;
@@ -260,9 +277,13 @@ static struct {
                        context:(void *)context {
     if (context == &ctx) {
         UIViewController *tovc = ctx.toVC;
+        if (!tovc) return;
+        
         UIToolbar *fakeBar = self.toViewControllerFakeBar;
         if (fakeBar.superview == tovc.view) {
             UINavigationBar *bar = tovc.navigationController.navigationBar;
+            if (!bar) return;
+            
             CGRect fakeBarFrame = [tovc yp_fakeBarFrameForNavigationBar:bar];
             if (!CGRectIsNull(fakeBarFrame)) {
                 fakeBar.frame = fakeBarFrame;
@@ -272,4 +293,3 @@ static struct {
 }
 
 @end
-
