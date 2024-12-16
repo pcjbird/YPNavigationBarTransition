@@ -60,7 +60,7 @@ BOOL YPTransitionNeedShowFakeBar(YPBarConfiguration *from,YPBarConfiguration *to
 }
 
 static struct {
-    __unsafe_unretained UIViewController *toVC;
+    __weak UIViewController *toVC;
 } ctx;
 
 @implementation YPNavigationBarTransitionCenter
