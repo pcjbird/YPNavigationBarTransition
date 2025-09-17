@@ -29,14 +29,15 @@ SOFTWARE.
 @implementation UINavigationBar (YPConfigure)
 
 - (void) yp_adjustWithBarStyle:(UIBarStyle)barStyle tintColor:(UIColor *)tintColor {
-    self.barStyle = barStyle;
     if(@available(iOS 26, *)) {
         [UIView performWithoutAnimation:^{
+            self.barStyle = barStyle;
             self.tintColor = tintColor;
             [self layoutIfNeeded];
         }];
     }
     else {
+        self.barStyle = barStyle;
         self.tintColor = tintColor;
     }
 }
