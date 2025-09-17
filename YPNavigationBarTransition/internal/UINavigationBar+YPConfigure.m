@@ -30,8 +30,13 @@ SOFTWARE.
 
 - (void) yp_adjustWithBarStyle:(UIBarStyle)barStyle tintColor:(UIColor *)tintColor {
     self.barStyle = barStyle;
-    self.tintColor = tintColor;
-    if (@available(iOS 26.0, *)) {
+    if(@available(iOS 26, *)) {
+        [UIView performWithoutAnimation:^{
+            self.tintColor = tintColor;
+            [self layoutIfNeeded];
+        }];
+    }
+    else {
         self.tintColor = tintColor;
     }
 }
