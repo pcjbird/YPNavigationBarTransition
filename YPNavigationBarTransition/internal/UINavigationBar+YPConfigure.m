@@ -31,6 +31,27 @@ SOFTWARE.
 - (void) yp_adjustWithBarStyle:(UIBarStyle)barStyle tintColor:(UIColor *)tintColor {
     self.barStyle = barStyle;
     self.tintColor = tintColor;
+#if DEBUG
+    NSString* barStyleDescription = @"Unknown";
+    switch (barStyle) {
+        case UIBarStyleDefault:
+            barStyleDescription = @"Default";
+            break;
+        case UIBarStyleBlack:
+            barStyleDescription = @"Black";
+            break;
+        case UIBarStyleBlackOpaque:
+            barStyleDescription = @"BlackOpaque";
+            break;
+        case UIBarStyleBlackTranslucent:
+            barStyleDescription = @"BlackTranslucent";
+            break;
+        default:
+            barStyleDescription = @"Unknown";
+            break;
+    }
+    NSLog(@"%s [Line %d] yp_adjustWithBarStyle: %@ (%@), tintColor: %@", __PRETTY_FUNCTION__, __LINE__, @(barStyle), barStyleDescription, tintColor);
+#endif
 }
 
 - (UIView *) yp_backgroundView {
@@ -42,6 +63,7 @@ SOFTWARE.
     if (@available(iOS 11,*)) {
         NSAssert(!self.prefersLargeTitles, @"large titles is not supported");
     }
+    NSLog(@"%s [Line %d] yp_applyBarConfiguration: %@", __PRETTY_FUNCTION__, __LINE__, configure);
 #endif
     
     [self yp_adjustWithBarStyle:configure.barStyle tintColor:configure.tintColor];

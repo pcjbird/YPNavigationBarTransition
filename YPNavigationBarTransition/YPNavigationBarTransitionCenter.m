@@ -114,7 +114,9 @@ static struct {
        willShowViewController:(UIViewController *)viewController
                      animated:(BOOL)animated {
     if (!navigationController || !viewController) return;
-    
+    #if DEBUG
+    NSLog(@"%s [Line %d] willShowViewController: %@, animated: %@", __PRETTY_FUNCTION__, __LINE__, viewController, @(animated));
+    #endif
     YPBarConfiguration *currentConfigure = [navigationController.navigationBar currentBarConfigure] ?: self.defaultBarConfigure;
     YPBarConfiguration *showConfigure = self.defaultBarConfigure;
     if ([viewController yp_hasCustomNavigationBarStyle]) {
@@ -145,8 +147,14 @@ static struct {
     }
     
     if (!showConfigure.hidden) {
+        #if DEBUG
+        NSLog(@"%s [Line %d] showFakeBar: %@, configure: %@", __PRETTY_FUNCTION__, __LINE__, showFakeBar ? @"YES" : @"NO", showFakeBar ? @"Transparent" : @"DEFAULT");
+        #endif
         [navigationBar yp_applyBarConfiguration:transparentConfigure ?: showConfigure];
     } else {
+        #if DEBUG
+        NSLog(@"%s [Line %d] Adjust with showConfigure bar style and currentConfigure tintColor", __PRETTY_FUNCTION__, __LINE__);
+        #endif
         [navigationBar yp_adjustWithBarStyle:showConfigure.barStyle tintColor:currentConfigure.tintColor];
     }
     
@@ -206,6 +214,9 @@ static struct {
      } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
          if ([context isCancelled]) {
              if(currentConfigure.hidden) {
+                  #if DEBUG
+                  NSLog(@"%s [Line %d] Remove fake bars when transition is cancelled, and apply currentConfigure", __PRETTY_FUNCTION__, __LINE__);
+                  #endif
                  [weakSelf removeFakeBars];
                  [navigationBar yp_applyBarConfiguration:currentConfigure];
              }
@@ -235,6 +246,9 @@ static struct {
     ^(id<UIViewControllerTransitionCoordinatorContext> context){
         if ([context isCancelled]) {
             // revert statusbar's style
+            #if DEBUG
+            NSLog(@"%s [Line %d] Revert statusbar style when transition is cancelled, bar style: %@, tintColor: %@", __PRETTY_FUNCTION__, __LINE__, @(currentConfigure.barStyle), currentConfigure.tintColor);
+            #endif
             [navigationBar yp_adjustWithBarStyle:currentConfigure.barStyle
                                        tintColor:currentConfigure.tintColor];
         }
@@ -253,6 +267,9 @@ static struct {
 - (void) navigationController:(UINavigationController *)navigationController
         didShowViewController:(UIViewController *)viewController
                      animated:(BOOL)animated {
+    #if DEBUG
+    NSLog(@"%s [Line %d] didShowViewController: %@, animated: %@", __PRETTY_FUNCTION__, __LINE__, viewController, @(animated));
+    #endif
     [self removeFakeBars];
     
     if (!navigationController || !viewController) return;
@@ -265,7 +282,9 @@ static struct {
     
     UINavigationBar *const navigationBar = navigationController.navigationBar;
     if (!navigationBar) return;
-    
+    #if DEBUG
+    NSLog(@"%s [Line %d] Apply showConfigure: %@ to navigationBar", __PRETTY_FUNCTION__, __LINE__, showConfigure);
+    #endif
     [navigationBar yp_applyBarConfiguration:showConfigure];
     
     _isTransitionNavigationBar = NO;

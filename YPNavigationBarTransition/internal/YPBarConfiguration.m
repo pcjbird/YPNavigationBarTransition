@@ -71,6 +71,46 @@ SOFTWARE.
     return self;
 }
 
+- (NSString*)description {
+    NSMutableString *desc = [NSMutableString string];
+    [desc appendFormat:@"<%@: %p", NSStringFromClass([self class]), self];
+    [desc appendFormat:@", hidden: %@", self.hidden ? @"YES" : @"NO"];
+    NSString* barStyleDescription = @"Unknown";
+    switch (self.barStyle) {
+        case UIBarStyleDefault:
+            barStyleDescription = @"Default";
+            break;
+        case UIBarStyleBlack:
+            barStyleDescription = @"Black";
+            break;
+        case UIBarStyleBlackOpaque:
+            barStyleDescription = @"BlackOpaque";
+            break;
+        case UIBarStyleBlackTranslucent:
+            barStyleDescription = @"BlackTranslucent";
+            break;
+        default:
+            barStyleDescription = @"Unknown";
+            break;
+    }
+    [desc appendFormat:@", barStyle: %@ (%@)", @(self.barStyle), barStyleDescription];
+    [desc appendFormat:@", translucent: %@", self.translucent ? @"YES" : @"NO"];
+    [desc appendFormat:@", transparent: %@", self.transparent ? @"YES" : @"NO"];
+    [desc appendFormat:@", shadowImage: %@", self.shadowImage ? @"YES" : @"NO"];
+    [desc appendFormat:@", tintColor: %@", self.tintColor];
+    if (self.backgroundColor) {
+        [desc appendFormat:@", backgroundColor: %@", self.backgroundColor];
+    }
+    if (self.backgroundImage) {
+        [desc appendFormat:@", backgroundImage: %@", self.backgroundImage];
+        if (self.backgroundImageIdentifier) {
+            [desc appendFormat:@"(identifier: %@)", self.backgroundImageIdentifier];
+        }
+    }
+    [desc appendString:@">"];
+    return desc;
+}
+
 @end
 
 @implementation YPBarConfiguration (YPBarTransition)
