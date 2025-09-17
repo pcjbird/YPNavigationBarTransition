@@ -17,10 +17,17 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     self.title = @"YPNavigationBarTransition";
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back"
-                                                                             style:UIBarButtonItemStylePlain
-                                                                            target:nil
-                                                                            action:nil];
+    UIBarButtonItem* backItem = [[UIBarButtonItem alloc] initWithTitle:@"Back"
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:nil
+                                                                action:nil];
+    if(@available(iOS 26.0, *)) {
+        backItem.hidesSharedBackground = YES;
+    }
+    self.navigationItem.backBarButtonItem = backItem;
+    if(@available(iOS 26.0, *)) {
+        self.navigationItem.backBarButtonItem.hidesSharedBackground = YES;
+    }
     
     YPDemoConfigureViewController *conf = [YPDemoConfigureViewController new];
     [self addChildViewController:conf];
@@ -34,6 +41,9 @@
     UIBarButtonItem *shareButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
                                                                                  target:self
                                                                                  action:@selector(shareAction:)];
+    if(@available(iOS 26.0, *)) {
+        shareButton.hidesSharedBackground = YES;
+    }
     self.navigationItem.rightBarButtonItem = shareButton;
     
     YPNavigationTitleLabel *titleView = [YPNavigationTitleLabel new];

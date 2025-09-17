@@ -98,6 +98,8 @@ UITableViewDataSource
     controller.configurations = conf;
     controller.backgroundColor = color;
     
+    controller.tintColor = [UIColor redColor];
+    
     [self.navigationController pushViewController:controller animated:YES];
 }
 

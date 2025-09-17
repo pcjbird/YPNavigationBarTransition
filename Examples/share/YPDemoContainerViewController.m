@@ -39,6 +39,9 @@
     UIBarButtonItem *popToRoot = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop
                                                                                target:self
                                                                                action:@selector(popToRoot:)];
+    if(@available(iOS 26.0, *)) {
+        popToRoot.hidesSharedBackground = YES;
+    }
     self.navigationItem.rightBarButtonItem = popToRoot;
 }
 
