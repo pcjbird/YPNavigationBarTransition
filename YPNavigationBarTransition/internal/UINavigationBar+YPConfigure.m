@@ -40,9 +40,6 @@ SOFTWARE.
         case UIBarStyleBlack:
             barStyleDescription = @"Black";
             break;
-        case UIBarStyleBlackOpaque:
-            barStyleDescription = @"BlackOpaque";
-            break;
         case UIBarStyleBlackTranslucent:
             barStyleDescription = @"BlackTranslucent";
             break;
