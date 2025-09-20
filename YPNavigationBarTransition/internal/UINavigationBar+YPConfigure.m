@@ -31,6 +31,9 @@ SOFTWARE.
 - (void) yp_adjustWithBarStyle:(UIBarStyle)barStyle tintColor:(UIColor *)tintColor {
     self.barStyle = barStyle;
     self.tintColor = tintColor;
+    if (@available(iOS 26.0, *)) {
+        self.overrideUserInterfaceStyle = barStyle == UIBarStyleBlack ? UIUserInterfaceStyleDark : UIUserInterfaceStyleLight;
+    }
 }
 
 - (UIView *) yp_backgroundView {
