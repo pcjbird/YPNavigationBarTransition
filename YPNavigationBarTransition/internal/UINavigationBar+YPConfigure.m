@@ -33,6 +33,12 @@ SOFTWARE.
     self.tintColor = tintColor;
     if (@available(iOS 26.0, *)) {
         self.overrideUserInterfaceStyle = barStyle == UIBarStyleBlack ? UIUserInterfaceStyleDark : UIUserInterfaceStyleLight;
+        [self.topItem.leftBarButtonItems enumerateObjectsUsingBlock:^(UIBarButtonItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.tintColor = tintColor;
+        }];
+        [self.topItem.rightBarButtonItems enumerateObjectsUsingBlock:^(UIBarButtonItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.tintColor = tintColor;
+        }];
     }
 }
 
